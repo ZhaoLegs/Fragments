@@ -1,7 +1,7 @@
 module.exports = async (req, res) => {
     // 设置 CORS 头
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     // 处理 OPTIONS 请求
@@ -15,21 +15,32 @@ module.exports = async (req, res) => {
     }
 
     try {
-        // 从请求体中获取数据
-        const data = req.body;
-        console.log('Received data:', data);
+        console.log('Request received:', {
+            method: req.method,
+            headers: req.headers,
+            body: req.body
+        });
+
+        // 检查请求体
+        if (!req.body) {
+            throw new Error('No request body');
+        }
 
         // 返回成功响应
-        res.json({ 
+        res.status(200).json({ 
             success: true,
             message: '请求已收到',
-            data: data
+            receivedData: {
+                title: req.body.title,
+                hasImage: !!req.body.image
+            }
         });
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Server error:', error);
         res.status(500).json({ 
             error: '服务器错误',
-            message: error.message 
+            message: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 }; 

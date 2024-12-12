@@ -76,29 +76,48 @@
             }
         });
 
-        // 表单提交处理
+        // 修改表单提交处理
         document.getElementById('newsForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            const title = document.getElementById('title').value;
+            const imageFile = document.getElementById('image').files[0];
+
+            // 创建 FormData 对象
             const formData = new FormData();
-            formData.append('title', document.getElementById('title').value);
-            formData.append('image', document.getElementById('image').files[0]);
+            formData.append('title', title);
+            formData.append('image', imageFile);
 
             try {
-                const response = await fetch('https://fragments-two.vercel.app/api/news', {
+                console.log('Sending request...');
+                
+                const response = await fetch('/api/news', {  // 使用相对路径
                     method: 'POST',
-                    body: formData
+                    body: formData  // 直接发送 FormData
                 });
 
+                console.log('Response status:', response.status);
+                
+                // 尝试解析响应
+                let result;
+                const responseText = await response.text();
+                console.log('Response text:', responseText);
+                
+                try {
+                    result = JSON.parse(responseText);
+                } catch (e) {
+                    console.error('Failed to parse response:', e);
+                    throw new Error('Invalid response format');
+                }
+
                 if (response.ok) {
-                    alert('发布成功！');
-                    window.location.href = '/';
+                    alert(result.message || '发布成功！');
+                    // window.location.href = '/';  // 暂时注释掉跳转
                 } else {
-                    const error = await response.text();
-                    alert('发布失败：' + error);
+                    throw new Error(result.error || '发布失败');
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error details:', error);
                 alert('发布失败：' + error.message);
             }
         });
