@@ -1,5 +1,9 @@
 {
   "name": "fragments-news",
   "version": "1.0.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "formidable": "^2.1.1",
+    "raw-body": "^2.5.2"
+  }
 } 
